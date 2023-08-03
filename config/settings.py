@@ -153,4 +153,6 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 LOGIN_URL = ''
 LOGIN_REDIRECT_URL = '/home/'
 
+AUTH_USER_MODEL = 'workingtime.CustomUser'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

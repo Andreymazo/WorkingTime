@@ -3,4 +3,5 @@
 .env
 /media/
 __pycache__
-workingtime/management/
+/static/
+workingtime/static/

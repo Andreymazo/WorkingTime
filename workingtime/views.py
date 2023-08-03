@@ -4,9 +4,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, DeleteView
-from django_tables2 import tables
 from django_tables2 import SingleTableView
-
 from workingtime.forms import EmployeeForm, MyAuthForm
 from workingtime.models import CustomUser, Employee, EmployeeTable, Timesheet, Employer, TimesheetTable
 
@@ -16,7 +14,6 @@ class CustomLoginView(LoginView):
     # model = CustomUser
     # form_class = UserCustomCreationForm
     # success_url = reverse_lazy('catalog:Product_list')
-    template_name = 'workingtime/login1.html'
 
 
 class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
@@ -44,6 +41,13 @@ class Timesheets(SingleTableView):
     queryset = Timesheet.objects.all()
     template_name = "workingtime/timesheet.html"
 
+    def get_queryset(self):
+        queryset = Timesheet.objects.all()
+        lst_emloyees_id = [i for i in Employee.objects.all().values_list('id', flat=True)]
+        if self.request.user.id in lst_emloyees_id:
+            return Timesheet.objects.get(employee_id=self.request.user.id)
+        return queryset
+
     # def get(self, request, *args, **kwargs):
     #     # self.object = self.get_object()
     #     total_time = Timesheet.objects.annotate(
@@ -66,7 +70,6 @@ class Timesheets(SingleTableView):
     #                'total_time': total_time,
     #                'general_total_time': general_total_time['general_total_time']}
     #     return render(request, "workingtime/timesheet.html", context)
-
 
     # def timesheet(self, request):
     #     total_time = self.model.annotate(

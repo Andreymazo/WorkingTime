@@ -81,6 +81,10 @@ class Timesheet(models.Model):
                                  verbose_name="Конец перерыва")
     out = models.TimeField(auto_now=False, auto_now_add=False, verbose_name="Конец рабочего дня")
 
+    class Meta:
+        ordering = ["id"]
+        verbose_name_plural = "Таймшиты"
+
 
 class TimesheetTable(tables.Table):
     class Meta:

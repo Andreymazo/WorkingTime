@@ -1,0 +1,15 @@
+ <!DOCTYPE html>
+<html>
+  <head>
+    <title>Interactive maps for Django web apps</title>
+  </head>
+  <body>
+   <h1>Map time!</h1>
+  </body>
+</html>
+
+    mapboxgl.accessToken = {{ mapbox_access_token }};
+    var map = new mapboxgl.Map({
+     container: 'map',
+     style: 'mapbox://styles/mapbox/streets-v10'
+    });

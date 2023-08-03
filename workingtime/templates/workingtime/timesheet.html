@@ -1,0 +1,51 @@
+    {% load django_tables2 %}
+    {% render_table table %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <h2>Timesheet     wt</h2>
+
+
+</head>
+<body>
+{% for ci in total_time %}
+     {{ ci.date }}: {{ ci.entry }} - {{ ci.out }}; {{ ci.total_time }}
+ {% endfor %}
+</body>
+<body>
+{{total_time}}
+
+{{Timesheets.timesheet}}
+{{Timesheets.timesheet.c}}
+</body>
+<body>
+ <table class="table table-dark table-striped">
+          <thead>
+            <tr>
+                <th scope="col">Details</th>
+                <th scope="col">№</th>
+                <th scope="col">   </th>
+                <th scope="col">   </th>
+
+            </tr>
+          </thead>
+          <tbody>
+           {% for object in Timesheets.timesheet.total_time %}
+                <tr>
+                    <td>
+                    <a class="btn btn-outline-light w-50" href="{% url 'workingtime:employee_detail' object.pk %}"></a>
+                    </td>
+
+                    <td>{{object.id}}</td>
+                    <td> {{ object.date }} </td>
+                    <td> {{ object.employee_id }} </td>
+                    <td> {{ total_time }} </td>
+                </tr>
+     {% endfor %}
+
+
+
+</body>
+
+</html>

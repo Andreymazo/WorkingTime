@@ -1,10 +1,13 @@
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.views import LoginView, PasswordResetView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ImproperlyConfigured
-from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy, reverse
 from django.views.generic import DetailView, DeleteView
 from django_tables2 import SingleTableView
+
+from config import settings
 from workingtime.forms import EmployeeForm, MyAuthForm
 from workingtime.models import CustomUser, Employee, EmployeeTable, Timesheet, Employer, TimesheetTable
 
@@ -43,13 +46,18 @@ class Timesheets(SingleTableView):
 
     def get_queryset(self):
         queryset = Timesheet.objects.all()
-        lst_emloyees_id = [i for i in Employee.objects.all().values_list('id', flat=True)]
-        if self.request.user.id in lst_emloyees_id:
-            print('+++++++++++++++++++++', self.request.user.id)
-            queryset = Timesheet.objects.filter(employee_id=self.request.user.id)
+        lst_employees_emails = [i.customuser.email for i in Employee.objects.all()]
+        if not self.request.user.is_authenticated:
+            login_url = reverse_lazy('workingtime:login')
+            return redirect(login_url)
+            # return redirect(f"{settings.LOGIN_URL}?next={self.request.path}")
+        if self.request.user.email in lst_employees_emails:
+            self_req_employee_id = CustomUser.objects.get(email=self.request.user.email)
+            queryset = Timesheet.objects.filter(employee_id=self_req_employee_id.employee.id)
+            return queryset
+        else:
             return queryset
 
-        return queryset
 
     # def get(self, request, *args, **kwargs):
     #     # self.object = self.get_object()

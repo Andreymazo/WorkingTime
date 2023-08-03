@@ -55,5 +55,28 @@ class Command(BaseCommand):
         # print(Timesheet.objects.all().values_list('id', flat=True)[1])
 
         # lst_emloyees_id = [i for i in Timesheet.objects.all().values_list('id', flat=True)]
-        lst_emloyees_id = [i for i in Employee.objects.all().values_list('id', flat=True)]
-        print(lst_emloyees_id)
+        # lst_emloyees_id = [i for i in Employee.objects.all().values_list('id', flat=True)]
+        #############################################
+        # employee = Employee.objects.get(name='Георгий')
+        # print(employee.customuser.email)
+        # customuser = CustomUser.objects.get(email='george@mom.ru')
+        # print(customuser.employee.name)
+        ###############################################
+        # p=Employee.objects.all()
+        # j=[]
+        # for i in p:
+        #     j.append(i.customuser.email)
+        # print(j)
+        # print([i.customuser.email for i in Employee.objects.all()])
+        #############################################
+
+        self_req_employee_id = CustomUser.objects.get(email=self.request.user.email)
+        print(self_req_employee_id.employee.id)
+
+
+        # lst_emloyees_emails = [i for i in Employee.objects.all().employee.values_list('email', flat=True)]
+
+        # print(lst_emloyees_emails)
+        # print(Timesheet.objects.filter(employee_id=8))
+        # print(CustomUser.objects.select_related("employee")[0])
+        # print(Employee.employee.all().name)

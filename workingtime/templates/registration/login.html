@@ -28,7 +28,8 @@
     <td>{{ form.password }}</td>
 </tr>
 </table>
-
+<form method="post" action="{% url 'workingtime:login' %}">
+{% csrf_token %}
 <input type="submit" value="Sign In">
 <input type="hidden" name="next" value="{{ next }}">
 </form>

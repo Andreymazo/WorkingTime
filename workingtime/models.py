@@ -61,10 +61,13 @@ class EmployerTable(tables.Table):
 
 
 class Employee(models.Model):
-    customuser = models.OneToOneField('workingtime.CustomUser', on_delete=models.CASCADE)
+    customuser = models.OneToOneField('workingtime.CustomUser', on_delete=models.CASCADE, related_name='employee')
     employer = models.ForeignKey('workingtime.Employer', on_delete=models.CASCADE)
     name = models.CharField(max_length=150, verbose_name='Работник')
     engaged = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f" {self.name} id{self.id}"
 
 
 class EmployeeTable(tables.Table):

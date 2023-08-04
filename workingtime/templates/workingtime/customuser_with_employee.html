@@ -1,0 +1,77 @@
+{%extends 'workingtime/base.html'%}
+{% block content %}
+<h2> Creating customuser in progress ></h2>
+
+    <style>
+
+        .formset .formset-col {
+            display: inline-block;
+            width: 30%;
+            margin: 0 auto;
+            padding-right: 10px;
+        }
+        .formset .formset-row {
+            margin: 10px auto;
+        }
+        /*{#.formset .formset-col:nth-of-type(3n){#}*/
+        /*{# width:5%;#}*/
+        /*{#}#}*/
+        .formset {
+            margin: 20px auto;
+        }
+    </style>
+<form method="post" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-body">
+                    {% csrf_token %}
+                    {{form.as_p}}
+                    <button class="btn btn-outline-secondary" type="submit" id="input-group-text">Save</button>
+                </div>
+            </div>
+        </div>
+        <!--    </form>-->
+        <div class="col-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="formset">
+                        {{ formset.management_form }}
+                        {% for form in formset.forms %}
+                            <div class="formset-row">
+                                {% for field in form.visible_fields%}
+                                    <div class="formset-col">
+                                        {% if forloop.first %}
+                                            {% for hidden in form.hidden_fields %}
+                                                {{ hidden }}
+                                            {% endfor %}
+                                        {% endif %}
+                                        {{field.errors.as.ul}}
+                                        {% if not forloop.last %}
+                                            {{ field.label }}
+                                        {% endif %}
+                                        {{ field }}
+
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.formset/1.2.2/jquery.formset.min.js"integrity="sha512-ltwjKsDTo3hW/wV66ZaEkf2wOAFxmg7rWM76J8kOcYKLSKy44WBYO/BFaNNH3NGDS8BSz3meB9wtSnm41oL+pA=="crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    $('.formset-row').formset({
+        addText: "<span class=\"btn btn - outline - primary\">ADD</span>",
+        deleteText: "<span class=\"btn btn-outline-danger\">DELETE</span>",
+        prefix: "tag_set",
+    });
+</script>
+{% endblock %}
+
+
+

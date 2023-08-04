@@ -1,8 +1,9 @@
 from django.urls import path
 from workingtime.apps import WorkingtimeConfig
+from workingtime.formset import CustomuserCreateWithSubject
 from workingtime.views import CustomLoginView, \
     EmployeeDetail, EmployeeDelete, Timesheets, EmploeeTable, TimesheetLst, EmployeeUpdate, EmployeeCreate, \
-    EmploeeTableView
+    EmploeeTableView, CustomUserLst
 
 app_name = WorkingtimeConfig.name
 
@@ -17,6 +18,9 @@ urlpatterns = [
     path('employee_detail/<int:pk>', EmployeeDetail.as_view(template_name="workingtime/employee_detail.html"), name='employee_detail'),
     path('employee_update/<int:pk>', EmployeeUpdate.as_view(template_name="workingtime/employee_form.html"), name='employee_update'),
     path('employee_delete/<int:pk>', EmployeeDelete.as_view(template_name='workingtime/employee_confirm_delete.html'), name='employee_delete'),
+
+    path('customuser_lst/', CustomUserLst.as_view(), name='customuser_lst'),
+    path('customuser_create/', CustomuserCreateWithSubject.as_view(), name='customuser_create'),
     # path('employee/<int:pk>', EmployeeDelete.as_view(), name='delete_item'),
 
     # path('detail/<int:pk>/', RecordDetailView.as_view(), name='detail'),

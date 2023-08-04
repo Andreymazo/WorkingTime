@@ -25,7 +25,7 @@ class CustomUser(AbstractBaseUser):  # , PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     # is_superuser = models.BooleanField(default=False)
-    date_joined = models.DateTimeField(default=timezone.now)
+    date_joined = models.DateTimeField(auto_now_add=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
@@ -44,6 +44,11 @@ class CustomUser(AbstractBaseUser):  # , PermissionsMixin):
     @staticmethod
     def has_module_perms(app_label, **kwargs):
         return True
+
+
+class CustomUserTable(tables.Table):
+    class Meta:
+        model = CustomUser
 
 
 class Employer(models.Model):
@@ -90,6 +95,7 @@ class Timesheet(models.Model):
                                  verbose_name="Конец перерыва")
     out = models.TimeField(auto_now=False, auto_now_add=False, verbose_name="Конец рабочего дня")
     timesheet_emloyee_name = models.CharField(max_length=100, verbose_name='Имя сотрудника, чьи таймшиты', **NULLABLE)
+
     class Meta:
         ordering = ["id"]
         verbose_name_plural = "Таймшиты"

@@ -99,7 +99,7 @@ class ProductCreateView(PermissionRequiredMixin, CreateView):#Zapretili sozdanie
     form_class = ProductForm
     # fields = ('product_name', 'product_description', 'preview', 'price_per_unit', 'category')
     success_url = reverse_lazy('catalog:Product_list')
-    template_name = 'catalog/product_withsubject.html'
+    template_name = 'catalog/customuser_with_employee.html'
 # def select_from_cache_or_get_from_db():######Keshiruem
 #     queryset = Product.objects.all()
 #     if settings.CACHE_ENABLED:
@@ -236,4 +236,4 @@ class RecordDetailView(LoginRequiredMixin, DetailView):
 #     # form_class = ProductForm
 #     # fields = ('product_name', 'product_description', 'preview', 'price_per_unit', 'category')
 #     success_url = reverse_lazy('catalog:Product_list')
-#     template_name = 'catalog/product_withsubject.html'
+#     template_name = 'catalog/customuser_with_employee.html'

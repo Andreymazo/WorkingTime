@@ -11,7 +11,7 @@ from django.views.generic import DetailView, DeleteView, ListView, UpdateView, C
 from django_tables2 import SingleTableView, tables
 
 from config import settings
-from workingtime.forms import EmployeeForm, MyAuthForm, TimesheetForm
+from workingtime.forms import EmployeeForm, MyAuthForm, TimesheetForm, CustomUserForm
 from workingtime.models import CustomUser, Employee, EmployeeTable, Timesheet, Employer, TimesheetTable
 
 
@@ -19,7 +19,7 @@ class CustomLoginView(LoginView):
     authentication_form = MyAuthForm
     # model = CustomUser
     # form_class = UserCustomCreationForm
-    # success_url = reverse_lazy('catalog:Product_list')
+    # success_url = reverse_lazy('workingtime:Product_list')
 
 
 class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
@@ -193,7 +193,6 @@ class EmployeeDetail(DetailView):
 
 
 class EmployeeDelete(DeleteView):
-
     model = Employee
     template_name = 'workingtime/employee_confirm_delete.html'
     print('IF we was here [[[[[[[[[[[]]]]]]]]]]')
@@ -278,6 +277,20 @@ class TimesheetLst(ListView):
         # print(general_total_time['general_total_time'])
 
         return render(request, "workingtime/timesheets_without_tables2.html", context)
+
+
+class CustomUserLst(ListView):
+    queryset = CustomUser.objects.all()
+    form_class = CustomUserForm
+
+    class Meta:
+        model = CustomUser
+        fields = '__all__'
+
+
+# class CustomUserCreate(CreateView):
+#     form_class = CustomUserForm
+#     template_name = 'workingtime/customuser_with_employee.html'
 
 # class TableListView(SingleTableView):
 #     model = Values_table

@@ -1,0 +1,50 @@
+ {% include 'workingtime/includes/main_menu.html' %}
+{# tutorial/templates/tutorial/people.html #}
+ {% load render_table from django_tables2 %}
+<!doctype html>
+<html>
+    <head>
+        <h2>List of employee</h2>
+    </head>
+    <body>
+    {{object_list}}
+      <table class="table table-dark table-striped">
+          <thead>
+            <tr>
+                <th scope="col">Employee id</th>
+                <th scope="col">Employee Name</th>
+                <th scope="col">Engaged</th>
+                <th scope="col">Employer</th>
+
+            </tr>
+          </thead>
+
+ <tbody>
+        {% for object in object_list %}
+                <tr>
+
+
+                    <a class="btn btn-outline-light w-50" href="{% url 'workingtime:employee_detail' object.pk %}"></a>
+                    <td>{{object.id}}</td>
+                    <td> {{ object.name }} </td>
+                    <td>{{object.engaged}}</td>
+                    <td>{{object.employer}}</td>
+
+                    <td>
+                        <a class="btn.btn-default" href="{% url 'workingtime:employee_update' object.pk %}" >Update</a>
+                            <a class="btn.btn-default" href="{% url 'workingtime:employee_create' %}" >Create</a>
+                            <a class="btn.btn-default" href="{% url 'workingtime:employee_delete' object.pk %}" >Delete</a>
+                    </td>
+                </tr>
+        {% endfor %}
+          </tbody>
+
+    {% for item in object_list %}
+
+    <a href="{% url 'workingtime:employee_delete' item.pk %}" type="submit" class="btn"><button>{{ item.id }} {{item.name}}</button></a>
+
+    {% endfor %}
+        {% render_table object_list %}
+
+    </body>
+</html>

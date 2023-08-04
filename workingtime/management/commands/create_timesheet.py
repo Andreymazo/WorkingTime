@@ -19,5 +19,6 @@ class Command(BaseCommand):
                 lunch=('12:0'),
                 lunch_end=('13:0'),
                 out=('18:0'),
+                timesheet_emloyee_name='Георгий'
             )
             timesheet.save()

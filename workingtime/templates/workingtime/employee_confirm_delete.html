@@ -1,0 +1,20 @@
+{%extends 'workingtime/base.html'%}
+{% block content %}
+<div class="row">
+    <div class="col-4">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{form.as_p}}
+                    <a class="btn btn-outline-secondary" href="{% url 'workingtime:employee_lst' %}">Peredumal</a>
+                </form>
+                <form action="" method="post">{% csrf_token %}
+                    <p>Are you sure you want to delete "{{ post.title }}"?</p>
+                    <input type="submit" value="Confirm" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

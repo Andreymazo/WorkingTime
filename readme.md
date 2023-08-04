@@ -24,12 +24,17 @@
 
 В проекте предусмотрена валюта, для расчета заработной платы. Валюта привязана к .....(сотруднику)?
 
+
 Сотрудник не может видеть информацию кроме своей.
-Дамп базы на чужом компе:
-python manage.py dumpdata --exclude auth.permission --exclude contenttypes > db.json_foreign_user
-Дамп базы на своем:
-python manage.py dumpdata > db.json
-Дамп моделей:
-python manage.py dumpdata admin > admin.json
-Восстановление:
-python manage.py loaddata db.json/python manage.py loaddata db.json_foreign_user
+
+
+Запуск:
+Скопируйте проект:
+    - git clone git@github.com:Andreymazo/WorkingTime.git
+Установите зависимости:
+    - pip install -r requirements.txt
+Установите базу. Файл .env_sample поможет с параметрами.
+Загрузите базу (одна команда из двух должна загрузить):
+    - python manage.py loaddata db.json/python manage.py loaddata db.json_foreign_user
+Запуск:
+    - python manage.py runserver

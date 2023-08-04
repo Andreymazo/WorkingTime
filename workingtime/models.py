@@ -3,12 +3,13 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.shortcuts import render
 from django.utils import timezone
-from django_tables2 import tables
+from django_tables2 import tables, TemplateColumn
 
 from workingtime.managers import CustomUserManager
 
 phone_validator = RegexValidator(r"^(\+?\d{0,4})?\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{4}\)?)?$",
                                  "The phone number provided is invalid")
+NULLABLE = {'blank': True, 'null': True}
 
 
 class CustomUser(AbstractBaseUser):  # , PermissionsMixin):
@@ -54,7 +55,6 @@ class Employer(models.Model):
         return f'{self.id} {self.name}'
 
 
-
 class EmployerTable(tables.Table):
     class Meta:
         model = Employer
@@ -66,8 +66,14 @@ class Employee(models.Model):
     name = models.CharField(max_length=150, verbose_name='Работник')
     engaged = models.DateTimeField(default=timezone.now)
 
+    # edit = TemplateColumn('<a href="{% url "workingtime:home2" record.id %}">Edit</a>')
+    # acciones = TemplateColumn(
+    #     template_code='<a href="{% url "workingtime:home2" record.id %}" class="btn btn-success">Ver</a>')
+    class Meta:
+        unique_together = ("name", "customuser")
+
     def __str__(self):
-        return f" {self.name} id{self.id}"
+        return f" {self.name} id: {self.id}"
 
 
 class EmployeeTable(tables.Table):
@@ -76,17 +82,30 @@ class EmployeeTable(tables.Table):
 
 
 class Timesheet(models.Model):
-    employee = models.ForeignKey('workingtime.Employee', on_delete=models.CASCADE)
+    employee = models.ForeignKey('workingtime.Employee', on_delete=models.CASCADE, related_name='timesheet')
     date = models.DateField(auto_now=False, auto_now_add=False, verbose_name="Data")
     entry = models.TimeField(auto_now=False, auto_now_add=False, verbose_name="Начало рабочего дня")
     lunch = models.TimeField(auto_now=False, auto_now_add=False, null=True, blank=True, verbose_name="Начало перерыва")
     lunch_end = models.TimeField(auto_now=False, auto_now_add=False, null=True, blank=True,
                                  verbose_name="Конец перерыва")
     out = models.TimeField(auto_now=False, auto_now_add=False, verbose_name="Конец рабочего дня")
-
+    timesheet_emloyee_name = models.CharField(max_length=100, verbose_name='Имя сотрудника, чьи таймшиты', **NULLABLE)
     class Meta:
         ordering = ["id"]
         verbose_name_plural = "Таймшиты"
+
+    def save(
+            self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
+        print('+++++++++++++++++++++++++++++', self.employee.name)
+        timesheet_employee_name = self.employee.name
+        super().save(force_insert, force_update, using, update_fields)
+        return timesheet_employee_name
+
+    # employee = Employee.objects.get(name='Георгий')
+    # print(employee.customuser.email)
+    def __str__(self):
+        return f" Таймшит относится к сотруднику {self.timesheet_emloyee_name}  id:{self.employee.id} id таймшита: {self.id}"
 
 
 class TimesheetTable(tables.Table):
@@ -115,7 +134,7 @@ class TimesheetTable(tables.Table):
 # )
 # ['total_time']
 
-#in view
+# in view
 # def timesheet(request):
 #     c = Timesheet.objects.all()
 #     context = {'c': c}

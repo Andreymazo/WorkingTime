@@ -1,19 +1,23 @@
 from django.urls import path
 from workingtime.apps import WorkingtimeConfig
-from workingtime.views import CustomLoginView, EmploeeTableView,  \
-    EmployeeDetail, EmployeeDelete, Timesheets
+from workingtime.views import CustomLoginView, \
+    EmployeeDetail, EmployeeDelete, Timesheets, EmploeeTable, TimesheetLst, EmployeeUpdate, EmployeeCreate, \
+    EmploeeTableView
 
 app_name = WorkingtimeConfig.name
 
 urlpatterns = [
 
-    path('login/', CustomLoginView.as_view(template_name='registration/login.html'), name='login'),
+    path('', CustomLoginView.as_view(template_name='registration/login.html'), name='login'),
     path('home/', EmploeeTableView.as_view(), name='home'),
-    # path('timesheet/', timesheet, name='timesheet'),
+    path('timesheet_get_time/', TimesheetLst.as_view(), name='timesheet_lst'),
     path('timesheet/', Timesheets.as_view(template_name="workingtime/timesheet.html"), name='timesheet'),
-
-    path('employee/<int:pk>', EmployeeDetail.as_view(template_name="workingtime/employee_detail.html"), name='employee_detail'),
-    # path('employee/<int:pk>', EmployeeDelete.as_view(), name='employee_delete'),
+    path('employee_lst/', EmploeeTable.as_view(template_name="workingtime/employee_list2.html"), name='employee_lst'),
+    path('employee_create/', EmployeeCreate.as_view(template_name="workingtime/employee_form.html"), name='employee_create'),
+    path('employee_detail/<int:pk>', EmployeeDetail.as_view(template_name="workingtime/employee_detail.html"), name='employee_detail'),
+    path('employee_update/<int:pk>', EmployeeUpdate.as_view(template_name="workingtime/employee_form.html"), name='employee_update'),
+    path('employee_delete/<int:pk>', EmployeeDelete.as_view(template_name='workingtime/employee_confirm_delete.html'), name='employee_delete'),
+    # path('employee/<int:pk>', EmployeeDelete.as_view(), name='delete_item'),
 
     # path('detail/<int:pk>/', RecordDetailView.as_view(), name='detail'),
 

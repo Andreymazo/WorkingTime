@@ -72,8 +72,9 @@ class Command(BaseCommand):
 
         self_req_employee_id = CustomUser.objects.get(email=self.request.user.email)
         print(self_req_employee_id.employee.id)
-
-
+        c = Timesheet.objects.all().get(employee_id=self_req_employee_id.employee.id)
+        #############################################
+        print(BASE_DIR)
         # lst_emloyees_emails = [i for i in Employee.objects.all().employee.values_list('email', flat=True)]
 
         # print(lst_emloyees_emails)

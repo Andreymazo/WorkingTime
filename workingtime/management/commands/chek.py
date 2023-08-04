@@ -81,3 +81,24 @@ class Command(BaseCommand):
         # print(Timesheet.objects.filter(employee_id=8))
         # print(CustomUser.objects.select_related("employee")[0])
         # print(Employee.employee.all().name)
+#
+# База:
+# Дамп базы на чужом компе:
+# python manage.py dumpdata --exclude auth.permission --exclude contenttypes > db.json_foreign_user
+# Дамп базы на своем:
+# python manage.py dumpdata > db.json
+# Дамп моделей:
+# python manage.py dumpdata admin > admin.json
+# Восстановление:
+# python manage.py loaddata db.json/python manage.py loaddata db.json_foreign_user
+#
+# iz menu:
+#    <li class="nav-item">
+#           <a class="nav-link" href="{% url 'workingtime:employee_detail' employee.pk%}">Employee detail</a>
+#         </li>
+#           <li class="nav-item">
+#             <a class="nav-link" href="{% url 'workingtime:employee_update' employee.pk%}">Employee update</a>
+#           </li>
+#          <li class="nav-item">
+#             <a class="nav-link" href="{% url 'workingtime:employee_delete' employee.pk%}">Employee delete</a>
+#           </li>

@@ -10,7 +10,7 @@ app_name = WorkingtimeConfig.name
 urlpatterns = [
 
     path('', CustomLoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('home/', EmploeeTableView.as_view(), name='home'),
+    path('employee_self/', EmploeeTableView.as_view(), name='employee_self'),
     path('timesheet_get_time/', TimesheetLst.as_view(), name='timesheet_lst'),
     path('timesheet/', Timesheets.as_view(template_name="workingtime/timesheet.html"), name='timesheet'),
     path('employee_lst/', EmploeeTable.as_view(template_name="workingtime/employee_list2.html"), name='employee_lst'),

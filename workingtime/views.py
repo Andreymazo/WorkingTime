@@ -41,8 +41,20 @@ from django_tables2 import TemplateColumn, LinkColumn
 class EmploeeTableView(SingleTableView):
     table_class = EmployeeTable
     queryset = Employee.objects.all()
-    template_name = "Employee_list.html"
+    template_name = "workingtime/employee_list.html"
 
+    def get_queryset(self):
+        queryset = Employee.objects.all()
+        lst_employees_emails = [i.customuser.email for i in Employee.objects.all()]
+        if not self.request.user.is_authenticated:
+            login_url = reverse_lazy('workingtime:login')
+            return redirect(login_url)
+        if self.request.user.email in lst_employees_emails:
+            self_req_employee_id = CustomUser.objects.get(email=self.request.user.email)
+            queryset = Employee.objects.filter(id=self_req_employee_id.employee.id)
+            return queryset
+        else:
+            return queryset
 
 #     delete = LinkColumn('workingtime:home', args=[A('pk')], attrs={
 #         'a': {'class': 'btn'}

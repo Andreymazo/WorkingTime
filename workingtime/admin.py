@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from workingtime.models import Employee, CustomUser, Timesheet
+
+admin.site.register(Employee)
+
+admin.site.register(CustomUser)
+
+admin.site.register(Timesheet)

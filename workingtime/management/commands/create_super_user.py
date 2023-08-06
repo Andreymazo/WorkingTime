@@ -11,8 +11,9 @@ class Command(BaseCommand):
         user = CustomUser.objects.create(
             email='andreymazo@mail.ru',
             is_admin=True,
-            # is_staff=True
+            is_staff=True
         )
         user.set_password('qwert123asd')
         user.is_superuser = True
+
         user.save()

@@ -35,3 +35,4 @@
   - Запуск
     - python manage.py runserver
   - Командные файлы в папке workingtime/management/commands с создания суперюзера create_super_user.py и поочереди create_employer.py, create_employee.py, create_timesheet.py
+  - можно через админку работать (суперюзер изсстафф должно быть тру)

@@ -87,66 +87,42 @@ class Timesheets(SingleTableView):
     queryset = Timesheet.objects.all()
     template_name = "workingtime/timesheet.html"
 
-    def get_queryset(self):
-        queryset = Timesheet.objects.all()
-        lst_employees_emails = [i.customuser.email for i in Employee.objects.all()]
-        if not self.request.user.is_authenticated:
-            login_url = reverse_lazy('workingtime:login')
-            return redirect(login_url)
-            # return redirect(f"{settings.LOGIN_URL}?next={self.request.path}")
-        if self.request.user.email in lst_employees_emails:
-            self_req_employee_id = CustomUser.objects.get(email=self.request.user.email)
-            queryset = Timesheet.objects.filter(employee_id=self_req_employee_id.employee.id)
-            return queryset
-        else:
-            return queryset
-
-    def get(self, request, *args, **kwargs):
-        # self.object = self.get_object()
-        total_time = Timesheet.objects.annotate(
-            total_time=ExpressionWrapper(
-                ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
-                ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
-                output_field=DurationField()
-            )
-        )
-
-        general_total_time = Timesheet.objects.aggregate(
-            general_total_time=Sum(
-                ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
-                ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
-                output_field=DurationField()
-            )
-        )
-        c = Timesheet.objects.all()
-        context = {'c': c,
-                   'total_time': total_time,
-                   'general_total_time': general_total_time['general_total_time']}
-        return render(request, "workingtime/timesheet.html", context)
-
-    #     def timesheet(self, request):
-    #         total_time = self.model.annotate(
-    #             total_time=ExpressionWrapper(
-    #                 ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
-    #                 ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
-    #                 output_field=DurationField()
-    #             )
+    # def get_queryset(self):
+    #     queryset = Timesheet.objects.all()
+    #     lst_employees_emails = [i.customuser.email for i in Employee.objects.all()]
+    #     if not self.request.user.is_authenticated:
+    #         login_url = reverse_lazy('workingtime:login')
+    #         return redirect(login_url)
+    #         # return redirect(f"{settings.LOGIN_URL}?next={self.request.path}")
+    #     if self.request.user.email in lst_employees_emails:
+    #         self_req_employee_id = CustomUser.objects.get(email=self.request.user.email)
+    #         queryset = Timesheet.objects.filter(employee_id=self_req_employee_id.employee.id)
+    #         return queryset
+    #     else:
+    #         return queryset
+    #
+    # def get(self, request, *args, **kwargs):
+    #     # self.object = self.get_object()
+    #     total_time = Timesheet.objects.annotate(
+    #         total_time=ExpressionWrapper(
+    #             ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
+    #             ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
+    #             output_field=DurationField()
     #         )
+    #     )
     #
-    #         general_total_time = self.model.aggregate(
-    #             general_total_time=Sum(
-    #                 ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
-    #                 ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
-    #                 output_field=DurationField()
-    #             )
+    #     general_total_time = Timesheet.objects.aggregate(
+    #         general_total_time=Sum(
+    #             ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
+    #             ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
+    #             output_field=DurationField()
     #         )
-    #
-    #         c = Timesheet.objects.all()
-    #         context = {'c': c,
-    #                    'total_time': total_time,
-    #                    'general_total_time': general_total_time['general_total_time']}
-    #
-    #         return render(request, "workingtime/timesheet.html", context)
+    #     )
+    #     c = Timesheet.objects.all()
+    #     context = {'c': c,
+    #                'total_time': total_time,
+    #                'general_total_time': general_total_time['general_total_time']}
+    #     return render(request, "workingtime/timesheet.html", context)
 
 
 # class EmployeeList(ListView):
@@ -285,7 +261,7 @@ class TimesheetLst(ListView):
                    'tt': tt,
                    'general_total_time': general_total_time['general_total_time'],
                    'employee_name': employee_name}
-        print(tt[0].entry)
+        # print(tt[0].entry)
         # print(general_total_time['general_total_time'])
 
         return render(request, "workingtime/timesheets_without_tables2.html", context)

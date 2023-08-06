@@ -7,7 +7,7 @@ from workingtime.forms import EmployeeForm, CustomUserForm, EmployeeFormSet
 from workingtime.models import CustomUser, Employee
 
 
-class CustomuserCreateWithSubject(CreateView):
+class CustomuserCreateWithEmployee(CreateView):
     model = CustomUser
     form_class = CustomUserForm
     template_name = 'workingtime/customuser_with_employee.html'

@@ -34,4 +34,4 @@
     - python manage.py loaddata db.json/python manage.py loaddata db.json_foreign_user
   - Запуск
     - python manage.py runserver
-  - Командные файлы в папке workingtime/management/commands с создания суперюзера и поочереди create_employer.py, create_employee.py, create_timesheet.py
+  - Командные файлы в папке workingtime/management/commands с создания суперюзера create_super_user.py и поочереди create_employer.py, create_employee.py, create_timesheet.py

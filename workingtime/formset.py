@@ -61,20 +61,37 @@ class CustomuserCreateWithEmployee(CreateView):
     #         return self.form_invalid(form, company_form)
     #
     def get(self, request, *args, **kwargs):
-
+        form = CustomUserForm()
         self.object = None
-        print('ffffffffffffffff', self.object)
         FormSet = inlineformset_factory(self.model, Employee, form=EmployeeForm, extra=1)
         if self.request.method == 'POST':
+
             formset = FormSet(self.request.POST, instance=self.request.user)
         else:
             formset = FormSet(instance=self.object)
         # print('formset', formset)
         # context_data['formset'] = formset
-        context = {
+        context = {'form': form,
             'formset': formset
         }
         return self.render_to_response(context)
+
+        # def view_name(request):
+        #     form = LessonForm()
+        #     formset = MaterialsFormset(instance=Lesson())
+        #     if request.method == 'POST':
+        #         form = LessonForm(request.POST)
+        #         if form.is_valid():
+        #             lesson = form.save()
+        #             formset = MaterialsFormset(request.POST, request.FILES,
+        #                                        instance=lesson)
+        #             if formset.is_valid():
+        #                 formset.save()
+        #                 return render(request, 'index.html', )
+        #     return render(request, "page.html", {
+        #         'form': form, 'formset': formset
+        #     })
+
         # return super(EmployeeDetail, self).get(request, *args, **kwargs)
         # return self.render_to_response(context)
         # return super().get(request, *args, **kwargs)
@@ -107,8 +124,8 @@ class CustomuserCreateWithEmployee(CreateView):
     #             formset.instance = self.object
     #             formset.save()
     #         else:
-    #             return super(CustomuserCreateWithSubject, self).form_invalid(form)
-    #     return super(CustomuserCreateWithSubject, self).form_valid(form)
+    #             return super(CustomuserCreateWithEmployee, self).form_invalid(form)
+    #     return super(CustomuserCreateWithEmployee, self).form_valid(form)
 
     # def form_valid(self, form, company_form):
     #     """

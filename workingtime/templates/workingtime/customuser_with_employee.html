@@ -1,6 +1,6 @@
 {%extends 'workingtime/base.html'%}
 {% block content %}
-<h2> Creating Emolyee with customuser email</h2>
+<h2> Creating Employee with customuser email</h2>
 
     <style>
 
@@ -27,6 +27,7 @@
                 <div class="card-body">
                     {% csrf_token %}
                     {{form.as_p}}
+
                     <button class="btn btn-outline-secondary" type="submit" id="input-group-text">Save</button>
                 </div>
             </div>
@@ -49,6 +50,7 @@
                                         {{field.errors.as.ul}}
                                         {% if not forloop.last %}
                                             {{ field.label }}
+
                                         {% endif %}
                                         {{ field }}
 

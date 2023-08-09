@@ -9,7 +9,8 @@ class Command(BaseCommand):
         # names_emails = {'Георгий':'george@mom.ru', 'Максим':'maxim@mom.ru', 'Вася':'vasia@mom.ru'}
         # for i, ii in names_emails.items():
             customuser = CustomUser.objects.create(
-                email = 'george122@mom.ru'
+                email='admin@mom.ru',
+                is_admin=True
 
             )
             customuser.set_password('qwert123asd')

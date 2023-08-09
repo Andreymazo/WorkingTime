@@ -1,0 +1,57 @@
+{%extends 'workingtime/base.html'%}
+  {% block content %}
+<H3>Creating timesheet in progress<H3>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+    <link href="https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+       <script  type="text/javascript">
+    $(document).ready( function() {
+    var now = new Date();
+    var day = ("0" + now.getDate()).slice(-2);
+    var month = ("0" + (now.getMonth() + 1)).slice(-2);
+    var today = now.getFullYear()+"-"+(month)+"-"+(day) ;
+   $('#datePicker').val(today);
+});
+     </script>
+    <div class="row">
+      <div class="col-4">
+        <div class="card">
+          <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{form.as_p}}
+                    <p>Date<input id="datePicker" type = 'date'  name='date' ></p>
+                    <button type="submit">Submit</button>
+            </form>
+        </div>
+      </div>
+    </div>
+      {% endblock %}
+    </div>
+ <h3>Update timesheet</h3>
+
+
+</form>
+
+
+{#     <tbody>#}
+{#     {% for object in object_list %}#}
+{#{{object_list}}#}
+{##}
+{#                    <td>{{object.get_status_display}}#}
+{#                        {% if object.status == True %}#}
+{#                        <a class="btn btn-light" href="{% url 'posutochka:status' object.pk %}">X</a>#}
+{#                        {% else %}#}
+{#                        <a class="btn btn-light" href="{% url 'posutochka:status' object.pk %}">V</a>#}
+{#                        {% endif %}#}
+{#                    </td>#}
+{#     {% endfor %}#}
+{#     </tbody>#}
+{##}
+{#</head>#}
+{#<body>#}

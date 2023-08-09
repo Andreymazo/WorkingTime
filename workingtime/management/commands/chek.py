@@ -6,7 +6,7 @@ from django.db.models import DurationField, ExpressionWrapper, F, IntegerField, 
 from django.utils import timezone
 
 from config.settings import BASE_DIR, STATIC_FILES_DIRS
-from workingtime.models import CustomUser, Employee, Employer, Timesheet
+from workingtime.models import CustomUser, Employee, Employer, Timesheet, WorkTime
 
 
 # from users.models import CustomUser
@@ -14,6 +14,13 @@ from workingtime.models import CustomUser, Employee, Employer, Timesheet
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
+        # w = WorkTime.objects.all().last()
+        w = Timesheet.objects.all().get(id=8)
+        print(w.worktime.status_work_wt)
+        # w.status_work_wt = \
+        # print(w.timesheet.status_work)
+        # print(w.status_work_wt)
+
         # now = timezone.now()
         # print(now)
         # employee_engaged = Employee.objects.get(employer=Employer.objects.get(name='Вася')).engaged
@@ -70,11 +77,11 @@ class Command(BaseCommand):
         # print([i.customuser.email for i in Employee.objects.all()])
         #############################################
 
-        self_req_employee_id = CustomUser.objects.get(email=self.request.user.email)
-        print(self_req_employee_id.employee.id)
-        c = Timesheet.objects.all().get(employee_id=self_req_employee_id.employee.id)
-        #############################################
-        print(BASE_DIR)
+        # self_req_employee_id = CustomUser.objects.get(email=self.request.user.email)
+        # print(self_req_employee_id.employee.id)
+        # c = Timesheet.objects.all().get(employee_id=self_req_employee_id.employee.id)
+        # #############################################
+        # print(BASE_DIR)
         # lst_emloyees_emails = [i for i in Employee.objects.all().employee.values_list('email', flat=True)]
 
         # print(lst_emloyees_emails)

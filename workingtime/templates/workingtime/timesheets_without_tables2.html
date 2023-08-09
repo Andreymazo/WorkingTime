@@ -7,8 +7,10 @@
 </head>
 <body>
 
+{{ tt }}
+
 </body>
-<body>
+    <body>
 
      <table class="table table-dark table-striped">
               <thead>
@@ -20,6 +22,7 @@
                     <th scope="col"> Start lunch  </th>
                     <th scope="col"> End lunch  </th>
                     <th scope="col"> Working day completed</th>
+                    <th scope="col"> Self user concerned</th>
                     <th scope="col">  Total time  </th>
                     <th scope="col"> General total time  </th>
 
@@ -29,7 +32,7 @@
                {% for object in tt %}
                     <tr>
                         <td>
-                        <a class="btn btn-outline-light w-50" href="{% url 'workingtime:employee_detail' object.pk %}"></a>
+                        <a class="btn btn-outline-light w-50" href="{% url 'workingtime:timesheet_detail' object.pk %}"></a>
                         </td>
                         <td>{{object.id}}</td>
                         <td> {{ object.date }} </td>
@@ -37,13 +40,15 @@
                         <td> {{ object.lunch }} </td>
                         <td> {{ object.lunch_end }} </td>
                         <td> {{ object.out }} </td>
+                        <th scope="col">  {{employee_name}} </th>
                         <td> {{ object.total_time }} </td>
                         <th scope="col">  {{general_total_time}} </th>
                     </tr>
                {% endfor %}
+     </body>
 
 
 
-</body>
+
 
 {% endblock %}

@@ -1,9 +1,11 @@
+from bootstrap_datepicker_plus.widgets import DatePickerInput
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, DateTimeField
+from django.utils import timezone
 from pip._internal.utils._jaraco_text import _
 
-from workingtime.models import Employee, Timesheet, CustomUser
+from workingtime.models import Employee, Timesheet, CustomUser, WorkTime
 
 
 class MyAuthForm(AuthenticationForm):
@@ -30,25 +32,26 @@ class CustomUserForm(forms.ModelForm):
 
 
 EmployeeFormSet = inlineformset_factory(CustomUser, Employee, form=CustomUserForm,
-                                    formset=EmployeeForm,
-                                    extra=1, max_num=20, can_delete=False)
-
-
-# class CreatePacketForm(forms.ModelForm):
-#     """
-#     CreatePacketForm class
-#     """
-#     class Meta:
-#         model = Packet
-#         exclude = ('customer', 'created_on', 'updated_on',
-#                    'created_by', 'updated_by', 'remark', 'p_id'
-#                    )
-# ItemFormSet = inlineformset_factory(Packet, Item, form=CreatePacketForm,
-#                                     formset=CreateItemForm,
-#                                     extra=1, max_num=20, can_delete=False)
+                                        formset=EmployeeForm,
+                                        extra=1, max_num=20, can_delete=False)
 
 
 class TimesheetForm(forms.ModelForm):
+    date = DateTimeField(widget=DatePickerInput(format='%d-%m-%y'),
+                         input_formats=('%d-%m-%y',),
+                         required=False,
+                         )
+
     class Meta:
         model = Timesheet
         fields = '__all__'
+        widgets = {
+            "engaged": DatePickerInput(options={"format": "y-m-d", "value": timezone.now().strftime("%Y-%m-%d")}), }
+
+
+class WorkTimeForm(forms.ModelForm):
+
+    class Meta:
+        model = WorkTime
+        fields = '__all__'
+

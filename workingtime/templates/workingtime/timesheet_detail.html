@@ -1,0 +1,41 @@
+{% block content %}
+<body>
+{{object_list}}
+{{ self_name }}
+
+</body>
+
+<h1> Timesheet detail </h1>
+  <h3> Timesheet employee name: {{self_name}}</h3>
+        <table class="table table-dark table-striped">
+
+            <thead>
+                <tr>
+                <th scope="col"> Id </th>
+                  <th scope="col"> date</th>
+                  <th scope="col">entry </th>
+                    <th scope="col">lunch</th>
+                    <th scope="col">employee_id</th>
+                    <th scope="col">timesheet_emloyee_name</th>
+
+
+                </tr>
+            </thead>
+     <tbody>
+     {% for object in object_list %}
+    <tr>
+
+                    <td>  {{object_list.timesheet.id}}</td>
+                    <td> {{object_list.timesheet.date}}</td>
+                    <td> {{object_list.timesheet.entry}}</td>
+                    <td> {{object_list.timesheet.lunch}}</td>
+                    <td> {{object_list.timesheet.employee_id}}</td>
+                    <td> {{self_name}}</td>
+
+
+            <td> {{general_total_time}}</td>
+     </tr>
+     {% endfor %}
+     </tbody>
+{% endblock %}
+

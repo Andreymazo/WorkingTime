@@ -124,7 +124,7 @@ class Timesheet(models.Model):
     def save(
             self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
-        j = WorkTime.objects.create(work_safe_sheets=self.lunch, timesheet_id=self.id)
+        j = WorkTime.objects.create(work_safe_sheets=self.lunch, timesheet_id=self.id, status_work_wt=self.status_work)
         j.save()
         timesheet_employee_name = self.employee.name
         super().save(force_insert, force_update, using, update_fields)

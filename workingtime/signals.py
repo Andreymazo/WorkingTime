@@ -4,12 +4,13 @@ from django.dispatch import receiver
 from workingtime.models import Timesheet, WorkTime
 
 
+## Вместо сигнала в модели Timesheet все создает функция safe
 @receiver(post_save, sender=Timesheet)
 def post_save_timesheet(instance, **kwargs):
-    ww=WorkTime.objects.all().last()
+    ww = WorkTime.objects.all().last()
     w = instance
     # print(w.worktime.status_work_wt)
-    print('timesheet updated, w.timesheet.status_work', w.__dict__)
+    # print('timesheet updated, w.timesheet.status_work', w.__dict__)
 
-    ww.status_work_wt=w.status_work
-    ww.save()
+    # ww.status_work_wt=w.status_work
+    # ww.save()

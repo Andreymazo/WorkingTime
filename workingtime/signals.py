@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from workingtime.models import Timesheet, WorkTime
 
 
-## Вместо сигнала в модели Timesheet все создает функция safe
+## Вместо сигнала в модели Timesheet все создает функция save
 @receiver(post_save, sender=Timesheet)
 def post_save_timesheet(instance, **kwargs):
     ww = WorkTime.objects.all().last()

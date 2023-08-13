@@ -18,6 +18,8 @@
    $('#datePicker').val(today);
 });
      </script>
+
+
     <div class="row">
       <div class="col-4">
         <div class="card">
@@ -25,8 +27,10 @@
             <form method="post" enctype="multipart/form-data">
               {% csrf_token %}
               {{form.as_p}}
-                    <p>Date<input id="datePicker" type = 'date'  name='date' ></p>
+                    <p>Datetime start<input id="datePicker" type = 'date'  name='datetime_start' ></p>
+                    <p>Datetime complete<input id="datePicker" type = 'date'  name='datetime_complete' ></p>
                     <button type="submit">Submit</button>
+                    {{ form.media }}
             </form>
         </div>
       </div>

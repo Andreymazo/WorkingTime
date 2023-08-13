@@ -1,8 +1,14 @@
+{% load bootstrap3 %}
 {% block content %}
 <body>
 {{object_list}}
 {{ self_name }}
-
+{% if filter %}
+    <form action="" method="get" class="form form-inline">
+        {% bootstrap_form filter.form layout='inline' %}
+        {% bootstrap_button 'filter' %}
+    </form>
+{% endif %}
 </body>
 
 <h1> Timesheet detail </h1>
@@ -12,30 +18,32 @@
             <thead>
                 <tr>
                 <th scope="col"> Id </th>
-                  <th scope="col"> date</th>
-                  <th scope="col">entry </th>
-                    <th scope="col">lunch</th>
-                    <th scope="col">employee_id</th>
-                    <th scope="col">timesheet_emloyee_name</th>
-
+                  <th scope="col"> Status Work</th>
+                  <th scope="col"> Employee </th>
+                    <th scope="col">Datetime start</th>
+                    <th scope="col">Datetime complete</th>
+                    <th scope="col">Time break</th>
+                    <th scope="col">Employee name</th>
 
                 </tr>
             </thead>
      <tbody>
-     {% for object in object_list %}
+
     <tr>
 
-                    <td>  {{object_list.timesheet.id}}</td>
-                    <td> {{object_list.timesheet.date}}</td>
-                    <td> {{object_list.timesheet.entry}}</td>
-                    <td> {{object_list.timesheet.lunch}}</td>
-                    <td> {{object_list.timesheet.employee_id}}</td>
+                    <td>  {{object_list.id}}</td>
+                    <td> {{object_list.status_work}}</td>
+                    <td> {{object_list.employee}}</td>
+                    <td> {{object_list.datetime_start}}</td>
+                    <td> {{object_list.datetime_complete}}</td>
+                    <td> {{object_list.time_break}}</td>
+
                     <td> {{self_name}}</td>
 
 
             <td> {{general_total_time}}</td>
      </tr>
-     {% endfor %}
+
      </tbody>
 {% endblock %}
 

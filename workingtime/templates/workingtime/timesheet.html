@@ -1,4 +1,5 @@
-    {% load django_tables2 %}
+{% load bootstrap3 %}
+{% load django_tables2 %}
     {% render_table table %}
 <!DOCTYPE html>
 <html lang="en">
@@ -6,45 +7,59 @@
     <meta charset="UTF-8">
     <h2>Timesheet     List </h2>
 
+{% if filter %}
+    <form action="" method="get" class="form form-inline">
+        {% bootstrap_form filter.form layout='inline' %}
+        {% bootstrap_button 'filter' %}
+    </form>
+{% endif %}
 
 </head>
 <body>
-{% for ci in total_time %}
-     {{ ci.date }}: {{ ci.entry }} - {{ ci.out }}; {{ ci.total_time }}
+
+{% for ci in ff %}
+     {{ ci.sum_difference }}: {{ ci.worktime__start_break_safe_sheets }} - {{ ci.worktime__end_break_safe_sheets }}; {{ ci.sum_difference }}
  {% endfor %}
+{{ ff }}
 </body>
 <body>
+{{ ff }}
 {{total_time}}
-
+{{ tt }}
+{{ cc }}
 {{Timesheets.timesheet}}
 {{Timesheets.timesheet.c}}
 </body>
 <body>
  <table class="table table-dark table-striped">
           <thead>
-            <tr>
-                <th scope="col"> </th>
-                <th scope="col">№</th>
-                <th scope="col">   </th>
-                <th scope="col">   </th>
-
+            <tr> <th scope="col">Detail </th>
+                <th scope="col">employee_id </th>
+                <th scope="col">status_work</th>
+                <th scope="col">  datetime_start </th>
+                <th scope="col"> datetime_complete  </th>
+                <th scope="col">  time_break </th>
+                <th scope="col">total_time </th>
             </tr>
           </thead>
           <tbody>
-           {% for object in Timesheets.timesheet.total_time %}
+{#           {% for object in Timesheets.timesheet.total_time %}#}
+               {% for object in total_time %}
                 <tr>
                     <td>
                     <a class="btn btn-outline-light w-50" href="{% url 'workingtime:employee_detail' object.pk %}"></a>
                     </td>
 
-                    <td>{{object.id}}</td>
-                    <td> {{ object.date }} </td>
-                    <td> {{ object.employee_id }} </td>
-                    <td> {{ total_time }} </td>
+                    <td>{{employee.id}}</td>
+                    <td>{{object.status_work}}</td>
+                    <td> {{ object.datetime_start }} </td>
+                    <td> {{ object.datetime_complete }} </td>
+                    <td> {{ object.time_break }} </td>
+                    <td> {{ object.total_time }} </td>
                 </tr>
      {% endfor %}
 
-
+<h3> Время общее {{filter.sum}} {{ total_time.total_time }} {{ general_total_time }}</h3>
 
 </body>
 

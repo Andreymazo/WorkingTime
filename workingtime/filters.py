@@ -1,11 +1,14 @@
+from datetime import timedelta
+
 import django_filters
+from django.db.models import Sum, ExpressionWrapper, F, fields, Func
 from django.forms import inlineformset_factory
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView
 
 from workingtime.forms import CustomUserForm, EmployeeForm
-from workingtime.models import CustomUser, CustomUserTable, Employee
+from workingtime.models import CustomUser, CustomUserTable, Employee, EmployeeTable, Timesheet
 # class CustomUserFilter(django_filters.FilterSet):
 #     email = django_filters.CharFilter(lookup_expr='iexact')
 #     date_joined__gt = django_filters.NumberFilter(field_name='date_joined', lookup_expr='gt')
@@ -34,26 +37,6 @@ class CustomUserFilter(FilterSet):
         order_by = ["id"]
 
 
-class CustomUserList(ListView):
-    model = CustomUser
-    queryset = CustomUser.objects.all()
-
-    # def get(self, request, *args, **kwargs):
-    #     print('Get Get get')
-    #     form = CustomUserForm()
-    #     self.object = None
-    #     FormSet = inlineformset_factory(self.model, Employee, form=EmployeeForm, extra=1)
-    #     if self.request.method == 'POST':
-    #
-    #         formset = FormSet(self.request.POST, instance=self.request.user)
-    #     else:
-    #         formset = FormSet(instance=self.object)
-    #     context = {'form': form,
-    #                'formset': formset
-    #                }
-    #     return self.render_to_response(context)
-
-
 class FilteredCustomUserListView(SingleTableMixin, FilterView):
     table_class = CustomUserTable
     model = CustomUser
@@ -74,3 +57,78 @@ class FilteredCustomUserListView(SingleTableMixin, FilterView):
             return queryset
         else:
             return queryset
+
+
+class EmployeeFilter(FilterSet):
+    class Meta:
+        model = Employee
+        # fields = {"email": ["exact", "contains"], "full_name": ["exact"]}
+        fields = {
+            # "nombre_estudio": ["icontains"],
+            # "nombre_centro": ["icontains"],
+            "id": ["exact"],
+            # "nombre_asignatura": ["icontains"],
+            # "cod_grupo_asignatura": ["exact"],
+        }
+        order_by = ["name"]
+
+
+class FilteredEmployeeListView(SingleTableMixin, FilterView):
+    table_class = EmployeeTable
+    model = Employee
+    template_name = "workingtime/employee_lst_filtered.html"  # lst django-tables2 + ListView
+    filterset_class = EmployeeFilter
+    queryset = Employee.objects.all()
+
+
+# class TimesheetFilter(FilterSet):
+    
+    # class Meta:
+        # model = Timesheet
+        # fields = {"email": ["exact", "contains"], "full_name": ["exact"]}
+        # fields = {
+            # "datetime_complete": ["icontains"],
+            # "datetime_start": ["icontains"],
+            # "id": ["exact"],
+            # "employee": ["icontains"],
+            # "cod_grupo_asignatura": ["exact"],
+        # }
+        # order_by = ["name"]
+        ########################################################################
+    # employee = django_filters.CharFilter(lookup_expr='icontains')
+    # @property
+    # def sum(self):
+    #     return Timesheet.objects.filter(worktime__status_work_wt=True)#.annotate(
+    # duration=(F('worktime__time_break_safe_sheets') - F('datetime_start')))
+
+    # duration = ExpressionWrapper(F('closed_at') - F('opened_at'), output_field=fields.DurationField())
+    # objects = Timesheet.objects.closed().annotate(duration=duration).filter(duration__gt=timedelta(seconds=2))
+    # qs = super(TimesheetFilter, self).qs
+    # return qs.aggregate(Sum('worktime__time_break_safe_sheets'))#['worktime__work_safe_sheets__avg']#['id__avg']
+
+    # @property
+    # def get_sum_values(self):
+    #     sum_values = self.objects.all().aggregate(Sum('value'))['value__sum']
+    #     return sum_values
+    # @property
+    # def sum(self):
+    #     qs = super(TimesheetFilter, self).qs
+    #     return qs.aggregate(Sum(F('worktime__start_break_safe_sheets') - F('worktime__start_break_safe_sheets')))
+
+    class Meta:
+        model = Timesheet
+        # fields = {"email": ["exact", "contains"], "full_name": ["exact"]}
+        fields = {
+            #     # "nombre_estudio": ["icontains"],
+            #     # "nombre_centro": ["icontains"],
+            "id": ["gt"],
+            # "worktime__status_work_wt":["exact"], "employee":["exact"]#, "worktime__time_break_safe_sheets":["range"]
+            #
+            #     "employee":["exact"], "date":["contains"], "worktime__status_work_wt":
+            #
+            #     # "nombre_asignatura": ["icontains"],
+            #     # "cod_grupo_asignatura": ["exact"],
+        }
+        order_by = ["id"]
+
+        # fields = ['employee', 'date', 'worktime__status_work_wt', 'id'] #, "worktime__work_safe_sheets":["lt"]

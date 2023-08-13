@@ -1,17 +1,24 @@
+from datetime import timedelta
+
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.views import LoginView, PasswordResetView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from django.http import HttpResponseRedirect
+from django.forms import inlineformset_factory
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
+from django.utils.datetime_safe import datetime
 from django.views.generic import DetailView, DeleteView, ListView, UpdateView, CreateView
-from django_tables2 import SingleTableView, tables
+from django_filters.views import FilterView
+from django_tables2 import SingleTableView, tables, SingleTableMixin
+from pip._internal.utils._jaraco_text import _
 
 from config import settings
-from workingtime.filters import CustomUserFilter
+from workingtime.filters import CustomUserFilter, TimesheetFilter
 from workingtime.forms import EmployeeForm, MyAuthForm, TimesheetForm, CustomUserForm, WorkTimeForm
 from workingtime.models import CustomUser, Employee, EmployeeTable, Timesheet, Employer, TimesheetTable, \
     CustomUserTable, WorkTime, WorkTimeTable
@@ -88,7 +95,7 @@ class EmploeeTableView(SingleTableView):
 #     })
 
 
-class EmploeeTable(ListView):
+class EmployeeTableView(ListView):
     model = Employee
     table_class = EmployeeTable
     template_name = "workingtime/Employee_list2.html"
@@ -106,7 +113,7 @@ class EmploeeTable(ListView):
         )
 
 
-from django.db.models import DurationField, ExpressionWrapper, F, IntegerField, Sum, QuerySet
+from django.db.models import DurationField, ExpressionWrapper, F, IntegerField, Sum, QuerySet, Value, Func, When, Case
 
 
 # class EmployeeList(ListView):
@@ -129,38 +136,47 @@ class EmployeeUpdate(UpdateView):
 class EmployeeDetail(DetailView):
     model = Employee
     # template_name = 'workingtime/employee_detail.html'
-    template_name = 'workingtime/employee_form.html'
-    form_class = EmployeeForm
+    template_name = 'workingtime/employee_detail.html'
+    # form_class = EmployeeForm
 
+    #Сейчас другеи поля считают в таймшите и в worktime
     def get(self, request, *args, **kwargs):
-        print('==================', self.get_object())
         self.object = self.get_object()
-        total_time = Timesheet.objects.annotate(
-            total_time=ExpressionWrapper(
-                ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
-                ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
-                output_field=DurationField()
-            )
-        )
+        # total_time = Timesheet.objects.annotate(
+        #     total_time=ExpressionWrapper(
+        #         ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
+        #         ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
+        #         output_field=DurationField()
+        #     )
+        # )
 
-        general_total_time = Timesheet.objects.aggregate(
-            general_total_time=Sum(
-                ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
-                ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
-                output_field=DurationField()
-            )
-        )
+        # general_total_time = Timesheet.objects.aggregate(
+        #     general_total_time=Sum(
+        #         ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
+        #         ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
+        #         output_field=DurationField()
+        #     )
+        # )
+        
         # c = Employee.objects.all().get(employer=Employer.objects.get(name='Вася'))
         self_req_employee_id = CustomUser.objects.get(email=self.request.user.email)
         print('===================+++++++++++++++++++++++get_object().id', self.get_object().id)
-        print(self_req_employee_id.employee.id)
+        #Если заходит админ, то у него нет сущности employee, либо коммент оставить, либо обработать
+        # print(self_req_employee_id.employee.id)
         # c = Timesheet.objects.all().filter(employee_id=self_req_employee_id.employee.id)
         c = Employee.objects.all().get(id=self.get_object().id)
-
+        data =  Employee.objects.all()
+        total_time = Timesheet.objects.aggregate(Sum('worktime__time_worked_per_day'))
         context = {'c': c,
-                   'total_time': total_time,
-                   'general_total_time': general_total_time['general_total_time']}
-        return super(EmployeeDetail, self).get(request, *args, **kwargs)
+                   'cc':data,
+                   'total_time': total_time['worktime__time_worked_per_day__sum'],}
+                #    'general_total_time': general_total_time['general_total_time']}
+        # context = self.get_context_data()
+        # return self.render_to_response(context)
+
+        context['table'] = data
+        return self.render_to_response(context)
+        # return super(EmployeeDetail, self).get(request, *args, **kwargs)
         # return self.render_to_response(context)#"workingtime/employee_detail.html",
 
 
@@ -169,40 +185,126 @@ class EmployeeDelete(DeleteView):
     template_name = 'workingtime/employee_confirm_delete.html'
     success_url = reverse_lazy('workingtime:employee_lst')
 
-    # form_class = EmployeeForm
 
-
-# class BlogListView(ListView):
-#     model = Post
-#     template_name = 'home.html'
-#
-#
-# class BlogDetailView(DetailView):
-#     model = Post
-#     template_name = 'post_detail.html'
-#
-#
-# class BlogCreateView(CreateView):
-#     model = Post
-#     template_name = 'post_new.html'
-#     fields = ['title', 'author', 'body']
-#
-#
-# class BlogUpdateView(UpdateView):  # Новый класс
-#     model = Post
-#     template_name = 'post_edit.html'
-#     fields = ['title', 'body']
-
-# class BlogDeleteView(DeleteView): # Создание нового класса
-#     model = Post
-#     template_name = 'post_delete.html'
-#     success_url = reverse_lazy('home')
-
-class Timesheets(SingleTableView):
+class TimesheetsFilteredFilterView(FilterView, SingleTableView):
+    model = Timesheet
     table_class = TimesheetTable
     queryset = Timesheet.objects.all()
     template_name = "workingtime/timesheet.html"
+    filterset_class = TimesheetFilter
 
+    def get(self, request, *args, **kwargs):
+        self.object_list = self.get_queryset()
+        q = Timesheet.objects.all()
+        #Tak ne rabotaet
+        # ff = q.annotate(sum_difference=(ExpressionWrapper(F('worktime__start_break_safe_sheets') -
+        #             F('worktime__end_break_safe_sheets'), output_field=DurationField())))
+
+        # f = []
+        # ff = []
+
+        #     f.append(i)
+        # now = timezone.now()
+        # now = datetime.now()
+        # f.append([((now - timedelta(ii.end_break_safe_sheets)).hour-(now-timedelta(ii.start_break_safe_sheets)).hour for i,ii in enumerate(q))])
+        # print(f[0])
+        # s=0
+        # for i in f:
+        #     s += i
+        # print('========================', s)
+        # ff.append([ii.start_break_safe_sheets for i,ii in enumerate(q)])
+
+        # ff=Sum(f)
+
+        # for i, ii in enumerate(WorkTime.objects.all()):
+        #     print((i,ii)) # Timesheet.objects.all():
+        #     f.append((i, type(ii)))
+        #     print('______________________', (ff))
+
+
+
+        # ded_time = Timesheet.objects.annotate(
+        #     deduct_time=Sum((F('worktime__end_break_safe_sheets') - F('worktime__start_break_safe_sheets')))
+        # )
+        # total_time = Timesheet.objects.annotate(
+        #
+        #     total_time=ExpressionWrapper(
+        #         ExpressionWrapper(F('datetime_complete') - F('datetime_start'), output_field=IntegerField())
+        #         - ded_time,
+        #         # -
+        #         # ExpressionWrapper(
+        #             # Sum((F('worktime__end_break_safe_sheets') - F('worktime__start_break_safe_sheets'))),
+        #             # output_field=IntegerField()),
+        #         output_field=DurationField()
+        #     )
+        # )
+        general_total_time = Timesheet.objects.aggregate(Sum('worktime__time_worked_per_day'))
+        # general_total_time = Timesheet.objects.aggregate(
+        #     general_total_time=Sum(
+        #         ExpressionWrapper(F('datetime_complete') - F('datetime_start'), output_field=IntegerField()) -
+        #         ExpressionWrapper((F('worktime__start_break_safe_sheets') - F('worktime__end_break_safe_sheets')),
+        #                           output_field=IntegerField()),
+        #         output_field=DurationField()
+        #     )
+        # )
+        # c = Employee.objects.all().get(employer=Employer.objects.get(name='Вася'))
+        self_req_employee_id = CustomUser.objects.get(email=self.request.user.email)
+        # print('===================+++++++++++++++++++++++get_object().id', self.get_object().id)
+        # print(self_req_employee_id.employee.id)
+
+        data = Timesheet.objects.all()#.filter(employee_id=self_req_employee_id.employee.id)
+        context = {'object_list': data,
+                #    'ff':ff,
+                   #'total_time': total_time,
+                   'general_total_time': general_total_time['worktime__time_worked_per_day__sum']
+                #    'general_total_time': general_total_time['general_total_time']
+                   }
+        # context = self.get_context_data(**kwargs)
+        context['table'] = data
+        return self.render_to_response(context)
+
+        # c = Employee.objects.all().get(id=self.get_object().id)
+
+    #     # self.object = self.get_object()
+    #     # if self.object.status_work and self.object.datetime_complete.exists():
+    #     lst_poz_times = [Timesheet.objects.all().filter(worktime__time_break_safe_sheets=)]
+    #         total_time = Timesheet.objects.annotate(
+    #             total_time=ExpressionWrapper(
+    #                 ExpressionWrapper(F('datetime_start') + F('time_break'), output_field=IntegerField()) -
+    #                 ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
+    #                 output_field=DurationField()
+    #             )
+    #         )
+    #     context = {'c': c,
+    #           'total_time': total_time,
+    #           'general_total_time': general_total_time['general_total_time']}
+    #     context = self.get_context_data()
+
+    # return render(request, "workingtime/timesheet.html", context)
+    # def get(self, request, *args, **kwargs):
+    #     self.object_list = self.get_queryset()
+    ##  Соберем в один кверисет врем с Тру, в другой время с Фолс
+    # queriset1 = Timesheet.objects.annotate(username_index=Func(F('username'), Value('(\d+)'), function='substring')).filter(status_work_wt__worktime=True) #'^[A-Z]{2}\d+$'
+    # q = Timesheet.objects.annotate(status_work_wt__index=Func()).filter(worktime__status_work_wt=True)
+    # queriset1 = WorkTime.objects.annotate(status_work_wt=Func()).filter(status_work_wt=True)
+    # print('---------------------------', type(queriset1))
+    # data = Timesheet.objects.all()
+    # data = self.get_context_data(**kwargs)
+    # data = q
+    # context = self.get_context_data(**kwargs)
+    # context['table'] = data
+    #
+    # context = {'q': q,
+    #            'table':data}
+    # return render(request, "workingtime/timesheet.html", context)
+
+    # total_time = Timesheet.objects.annotate(
+    #     total_time=ExpressionWrapper(
+    #         ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
+    #         ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
+    #         output_field=DurationField()
+    #     )
+    # )
     # def get_queryset(self):
     #     queryset = Timesheet.objects.all()
     #     lst_employees_emails = [i.customuser.email for i in Employee.objects.all()]
@@ -241,6 +343,9 @@ class Timesheets(SingleTableView):
     #     return render(request, "workingtime/timesheet.html", context)
 
 
+from django.db.models import ExpressionWrapper, F, fields
+
+
 class TimesheetLst(ListView):
     form_class = TimesheetForm
     template_name = 'workingtime/timesheets_without_tables2.html'
@@ -254,7 +359,6 @@ class TimesheetLst(ListView):
             return redirect(login_url)
             # return redirect(f"{settings.LOGIN_URL}?next={self.request.path}")
         if self.request.user.email in lst_employees_emails:
-
             self_req_employee_id = CustomUser.objects.get(email=self.request.user.email)
             queryset = Timesheet.objects.filter(employee_id=self_req_employee_id.employee.id)
             return queryset
@@ -262,45 +366,60 @@ class TimesheetLst(ListView):
             queryset = Timesheet.objects.all()
             return queryset
 
+    ################### Убрал lunch_end из таймшита, пока пусть закомментировано будет, считаем по-другому################
+    def get(self, request, *args, **kwargs):
+        #     # print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', self.request.user.email)
+        #     if not self.request.user.is_authenticated:
+        #         login_url = reverse_lazy('workingtime:login')
+        #         return redirect(login_url)
+        #     lst_employees_emails = [i.customuser.email for i in Employee.objects.all()]
+        #     # print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', lst_employees_emails)
+        #     self_req_employee_id = CustomUser.objects.get(email=request.user.email)
+        #     # print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', self_req_employee_id.email)
+        #     if self_req_employee_id.email not in lst_employees_emails:
+        #         # print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        cc = Timesheet.objects.all()
+        tt = WorkTime.objects.aggregate(Sum('time_worked_per_day'))
+        # ItemPrice.objects.aggregate(Sum('price'))
+        # total_time = cc.annotate(
+        #     ttt=ExpressionWrapper(
+        #         ExpressionWrapper(F('datetime_complete') - F('datetime_start'), output_field=fields.IntegerField()),
 
-################### Убрал lunch_end из таймшита, пока пусть закомментировано будет, считаем по-другому################
-# def get(self, request, *args, **kwargs):
-#     # print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', self.request.user.email)
-#     if not self.request.user.is_authenticated:
-#         login_url = reverse_lazy('workingtime:login')
-#         return redirect(login_url)
-#     lst_employees_emails = [i.customuser.email for i in Employee.objects.all()]
-#     # print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', lst_employees_emails)
-#     self_req_employee_id = CustomUser.objects.get(email=request.user.email)
-#     # print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', self_req_employee_id.email)
-#     if self_req_employee_id.email not in lst_employees_emails:
-#         # print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-#         cc = Timesheet.objects.all()
-#         tt = cc.annotate(
-#             total_time=ExpressionWrapper(
-#                 ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
-#                 ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
-#                 output_field=DurationField()
-#             )
-#         )
-#
-#         general_total_time = cc.aggregate(
-#             general_total_time=Sum(
-#                 ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
-#                 ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
-#                 output_field=DurationField()
-#             )
-#         )
-#         self_req_employee_id = CustomUser.objects.get(email=request.user.email)
-#         self_name = self_req_employee_id.email
-#         context = {
-#             'cc': cc,
-#             'tt': tt,
-#             'general_total_time': general_total_time['general_total_time'],
-#             'employee_name': self_name
-#
-#         }
-#         return render(request, "workingtime/timesheets_without_tables2.html", context)
+                # -
+                # ExpressionWrapper((F('worktime__time_break_safe_sheets'), F('worktime__status_work_wt'==False)) - F('worktime__time_break_safe_sheets', F('worktime__status_work_wt'=True)), output_field=IntegerField()),
+                # delta = When(worktime__status_work_wt=False, then=(F('worktime__time_break_safe_sheets'))))
+                # output_field=DurationField()
+            # )
+        # )
+
+        # total_time = cc.annotate(
+        #     total_time=ExpressionWrapper(
+        #         ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
+        #         ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
+        #         output_field=DurationField()
+        #     )
+        # )
+        #
+        # general_total_time = cc.aggregate(
+        #     general_total_time=Sum(
+        #         ExpressionWrapper(F('out') - F('entry'), output_field=IntegerField()) -
+        #         ExpressionWrapper(F('lunch_end') - F('lunch'), output_field=IntegerField()),
+        #         output_field=DurationField()
+        #     )
+        # )
+        self_req_employee_id = CustomUser.objects.get(email=request.user.email)
+        self_name = self_req_employee_id.email
+        context = {
+            'cc': cc,
+            'tt':tt['time_worked_per_day__sum'],
+            #'total_time': total_time,
+            # 'general_total_time': general_total_time['general_total_time'],
+            'employee_name': self_name
+
+        }
+        return render(request, "workingtime/timesheets_without_tables2.html", context)
+
+
 #
 #     lst_employees_emails = [i.customuser.email for i in Employee.objects.all()]
 #     self_req_employee_id = CustomUser.objects.get(email=request.user.email)
@@ -360,18 +479,20 @@ class TimesheetsUpdateView(UpdateView):
         return reverse_lazy('workingtime:timesheet_update', kwargs={'pk': self.object.pk})
 
 
-class TimesheetsDetailView(DetailView):
+class TimesheetsDetailView(SingleTableMixin, FilterView, DetailView):
+    table_class = TimesheetTable
     model = Timesheet
     form_class = TimesheetForm
     success_url = reverse_lazy('workingtime:timesheet_lst_self_time')
     template_name = 'workingtime/timesheet_detail.html'
+    filterset_class = TimesheetFilter
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         self_req_timesheet_id = Timesheet.objects.get(id=self.object.pk)
         self_name = self_req_timesheet_id.employee.name
         context = {
-            'object_list': self.get_context_data(object=self.object),
+            'object_list': self_req_timesheet_id,  # self.get_context_data(object=self.object),
             'self_name': self_name
         }
         return render(request, "workingtime/timesheet_detail.html", context)
@@ -431,6 +552,29 @@ class WorktimeDeleteView(DeleteView):
 
 
 ###############################
+class CustomUserList(ListView):
+    model = CustomUser
+    queryset = CustomUser.objects.all()
+
+
+# Эта закомментрованная функция добавляет форму к формсету, сейчас откуда-то берется, но если исчезнет,
+# то ее надо будет раскоментровать и добавить туда, где формсет
+# def get(self, request, *args, **kwargs):
+#     print('Get Get get')
+#     form = CustomUserForm()
+#     self.object = None
+#     FormSet = inlineformset_factory(self.model, Employee, form=EmployeeForm, extra=1)
+#     if self.request.method == 'POST':
+#
+#         formset = FormSet(self.request.POST, instance=self.request.user)
+#     else:
+#         formset = FormSet(instance=self.object)
+#     context = {'form': form,
+#                'formset': formset
+#                }
+#     return self.render_to_response(context)
+
+
 class CustomUserLst(ListView):
     queryset = CustomUser.objects.all()
     form_class = CustomUserForm

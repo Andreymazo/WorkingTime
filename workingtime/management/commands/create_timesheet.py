@@ -15,13 +15,13 @@ class Command(BaseCommand):
             for i in l:
                 timesheet = Timesheet.objects.create(
                     employee=Employee.objects.get(name=ii),
-                    date=Employee.objects.get(name=ii).engaged + timedelta(days=i),
-                    entry=('9:0'),
-                    lunch=('12:0'),
-                    # lunch_end=('13:0'),
-                    out=('18:0'),
+                    datetime_start=Employee.objects.get(name=ii).engaged - timedelta(days=i),
+                    datetime_complete = Employee.objects.get(name=ii).engaged - timedelta(days=i) + timedelta(hours=8),
+                    time_break=Employee.objects.get(name=ii).engaged - timedelta(days=i) + timedelta(hours=5),
+
+
+                    # out=('18:0'),
                     # timesheet_emloyee_name=Employee.objects.get(name=ii).name,
 
                 )
                 timesheet.save()
-

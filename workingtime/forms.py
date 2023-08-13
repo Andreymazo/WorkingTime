@@ -37,16 +37,25 @@ EmployeeFormSet = inlineformset_factory(CustomUser, Employee, form=CustomUserFor
 
 
 class TimesheetForm(forms.ModelForm):
-    date = DateTimeField(widget=DatePickerInput(format='%d-%m-%y'),
-                         input_formats=('%d-%m-%y',),
+    datetime_start = DateTimeField(widget=DatePickerInput(format='%y-%m-%d'),
+                         input_formats=('%y-%m-%d',),
                          required=False,
                          )
+                         
+    datetime_complete = DateTimeField(widget=DatePickerInput(format='%y-%m-%'),
+                         input_formats=('%y-%m-%d',),
+                         required=False,
+                         )
+    
 
     class Meta:
         model = Timesheet
-        fields = '__all__'
+        # fields = '__all__'
+        fields = ['datetime_start', 'datetime_complete', 'status_work', 'employee']
         widgets = {
-            "engaged": DatePickerInput(options={"format": "y-m-d", "value": timezone.now().strftime("%Y-%m-%d")}), }
+            "datetime_start": DatePickerInput(options={"format": "y-m-d", "value": timezone.now().strftime("%Y-%m-%d")}),
+            "datetime_complete": DatePickerInput(options={"format": "y-m-d", "value": timezone.now().strftime("%Y-%m-%d")})
+              }
 
 
 class WorkTimeForm(forms.ModelForm):

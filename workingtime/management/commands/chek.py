@@ -15,8 +15,24 @@ from workingtime.models import CustomUser, Employee, Employer, Timesheet, WorkTi
 class Command(BaseCommand):
     def handle(self, *args, **options):
         # w = WorkTime.objects.all().last()
-        w = Timesheet.objects.all().get(id=8)
-        print(w.worktime.status_work_wt)
+        # w = Timesheet.objects.get(employee='3')
+        # w = WorkTime.objects.all().latest('start_break_safe_sheets').exists()
+        w = WorkTime.objects.all()
+        e = Timesheet.objects.all().exclude(time_break=None)
+        ee = e.latest('time_break').time_break
+        print(ee)
+        # for i in w:
+        #     print(i.start_break_safe_sheets)
+        ww = w.exclude(start_break_safe_sheets=None)
+        # for i in ww:
+        #     print(i.start_break_safe_sheets)
+        v=ww.latest('start_break_safe_sheets').start_break_safe_sheets
+
+        print(ee-v)
+        # print(w.worktime.start_break_safe_sheets)
+
+        # print(w)
+        # print('44444444444444444', WorkTime.objects.all().last().start_break_safe_sheets)
         # w.status_work_wt = \
         # print(w.timesheet.status_work)
         # print(w.status_work_wt)
